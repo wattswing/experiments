@@ -17,7 +17,7 @@
         const form = document.getElementById('js_formControl');
         form.addEventListener('submit', submitForm);
 
-        drawMap(10000, 1);
+        drawMap(50000, 1);
       };
 
       document.addEventListener('DOMContentLoaded', contentLoaded, false);
@@ -34,6 +34,7 @@
       const drawMap = function (iterations, thickness) {
         if (iterations < 10) return;
         if (thickness < 1) return;
+        const bench = timer('Drawing');
         const canvas = document.getElementById('playground');
         var ctx = canvas.getContext('2d');
         const startPosition = {
@@ -45,27 +46,36 @@
         ctx.fillStyle = 'rgb(255, 0, 0)';
         ctx.fillRect(startPosition.x, startPosition.y, thickness, thickness);
 
+        let newStep = null;
         let x = startPosition.x;
         let y = startPosition.y;
-        let newStep = null;
         for (var i = iterations; i > 1; i--) {
           newStep = advance(x, y);
           ctx.fillStyle = 'rgb(255,' + parseInt(i / iterations * 255) + ', 0)';
           ctx.fillRect(x, y, thickness, thickness);
-          y = newStep.y, x = newStep.x;
+          y = newStep[1], x = newStep[0];
         }
+
+        bench.stop();
       };
 
-      // Tail / head coin, thrown twice : one for up/down, one for left/right
-      const advance = function(width, height) {
+      const advance = function(x, y) {
+        const direction = parseInt(Math.random() * 4);
+        if (direction === 0) return [x += step, y += step];
+        if (direction === 1) return [x += step, y -= step];
+        if (direction === 2) return [x -= step, y += step];
+        return [x -= step, y -= step];
+      };
+
+      const timer = function(label) {
+        var start = performance.now();
         return {
-          'x': randomizeAxe(width),
-          'y': randomizeAxe(height)
-        };
-      };
-
-      const randomizeAxe = function(dimention) {
-        return Math.random() >= 0.5 ? dimention += step : dimention -= step;
+          stop: function() {
+            const end  = performance.now();
+            const time = end - start;
+            console.log(label, 'finished in', (time / 1000).toPrecision(3), 's');
+          }
+        }
       };
     })();
   </script>
