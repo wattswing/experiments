@@ -12,25 +12,28 @@
       const canvasWidth = window.innerWidth;
       const canvasHeight = window.innerHeight;
       const step = 1;
+
       const contentLoaded = function () {
         const form = document.getElementById('js_formControl');
         form.addEventListener('submit', submitForm);
+
         drawMap(10000, 1);
       };
+
       document.addEventListener('DOMContentLoaded', contentLoaded, false);
 
       const submitForm = function(evt) {
         evt.preventDefault();
         const form = evt.currentTarget;
-        const iterations = form.querySelector('.js_steps');
-        const boldness = form.querySelector('.js_boldness');
-        drawMap(parseInt(iterations.value), parseInt(boldness.value));
+        const iterations = form.querySelector('#js_steps');
+        const thickness = form.querySelector('#js_thickness');
+        drawMap(parseInt(iterations.value), parseInt(thickness.value));
         return false;
-      }
+      };
 
-      const drawMap = function (iterations, boldness) {
+      const drawMap = function (iterations, thickness) {
         if (iterations < 10) return;
-        if (boldness < 1) return;
+        if (thickness < 1) return;
         const canvas = document.getElementById('playground');
         var ctx = canvas.getContext('2d');
         const startPosition = {
@@ -40,25 +43,30 @@
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         ctx.fillStyle = 'rgb(255, 0, 0)';
-        ctx.fillRect(startPosition.x, startPosition.y, boldness, boldness);
+        ctx.fillRect(startPosition.x, startPosition.y, thickness, thickness);
+
         let x = startPosition.x;
         let y = startPosition.y;
+        let newStep = null;
         for (var i = iterations; i > 1; i--) {
-          const chanel = parseInt(i / iterations * 255);
-          const newStep = advance(x, y);
-          ctx.fillStyle = 'rgb(255,' + chanel + ', 0)';
-          ctx.fillRect(x, y, boldness, boldness);
-          y = newStep.y;
-          x = newStep.x;
+          newStep = advance(x, y);
+          ctx.fillStyle = 'rgb(255,' + parseInt(i / iterations * 255) + ', 0)';
+          ctx.fillRect(x, y, thickness, thickness);
+          y = newStep.y, x = newStep.x;
         }
-      }
+      };
+
       // Tail / head coin, thrown twice : one for up/down, one for left/right
       const advance = function(width, height) {
         return {
-          'x': Math.random() >= 0.5 ? width += step : width -= step,
-          'y': Math.random() >= 0.5 ? height += step : height -= step
+          'x': randomizeAxe(width),
+          'y': randomizeAxe(height)
         };
-      }
+      };
+
+      const randomizeAxe = function(dimention) {
+        return Math.random() >= 0.5 ? dimention += step : dimention -= step;
+      };
     })();
   </script>
 </head>
@@ -70,8 +78,10 @@
     <small>Read this <a href="http://natureofcode.com/book/introduction/">here</a></small>
 </p>
   <form action="#" id="js_formControl">
-    <input type="number" name="steps" min="1000" value="50000" step="1000" class="js_steps">
-    <input type="number" name="steps" min="1" value="1" class="js_boldness">
+    <label for="js_steps">Number of iterations</label>
+    <input type="number" name="steps" min="1000" value="50000" step="1000" id="js_steps">
+    <label for="js_thickness">Thickness</label>
+    <input type="number" name="thickness" min="1" max="4" value="1" id="js_thickness">
     <input type="submit" name="submit" value="Randomize">
   </form>
 
