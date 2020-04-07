@@ -61,10 +61,18 @@
 
       const advance = function(x, y) {
         const direction = parseInt(Math.random() * 4);
-        if (direction === 0) return [x += step, y += step];
-        if (direction === 1) return [x += step, y -= step];
-        if (direction === 2) return [x -= step, y += step];
-        return [x -= step, y -= step];
+        if (direction === 0) return constraintOutline(x += step, y += step);
+        if (direction === 1) return constraintOutline(x += step, y -= step);
+        if (direction === 2) return constraintOutline(x -= step, y += step);
+        return constraintOutline(x -= step, y -= step);
+      };
+
+      const constraintOutline = function(x, y) {
+        if (x > canvasWidth) x = canvasWidth - 1;
+        if (x < 0) x = 1;
+        if (y > canvasHeight) y = canvasHeight - 1;
+        if (y < 0) y = 1;
+        return [x, y]
       };
 
       const timer = function(label) {
